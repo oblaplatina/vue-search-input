@@ -7,91 +7,82 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, onMounted } from "vue";
 import SearchBar from "./components/SearchBar.vue";
 import FilterBar from "./components/FilterBar.vue";
 import ProductList from "./components/ProductList.vue";
 import ProductPagination from "./components/ProductPagination.vue";
 
-export default {
-  components: {
-    SearchBar,
-    FilterBar,
-    ProductList,
-    ProductPagination,
-  },
-  data() {
-    return {
-      products: [],
-      categories: [],
-      searchQuery: "",
-      selectedCategory: "",
-      currentPage: 1,
-      productsPerPage: 8,
-    };
-  },
-  computed: {
-    filteredProducts() {
-      return this.products.filter((product) => {
-        const matchesSearch = product.title
-          .toLowerCase()
-          .includes(this.searchQuery.toLowerCase());
-        const matchesCategory =
-          !this.selectedCategory || product.category === this.selectedCategory;
-        return matchesSearch && matchesCategory;
-      });
-    },
-    paginatedProducts() {
-      const start = (this.currentPage - 1) * this.productsPerPage;
-      const end = start + this.productsPerPage;
-      return this.filteredProducts.slice(start, end);
-    },
-    totalPages() {
-      return Math.ceil(this.filteredProducts.length / this.productsPerPage);
-    },
-  },
-  mounted() {
-    fetch("https://dummyjson.com/products")
-      .then((response) => response.json())
-      .then((data) => {
-        this.products = data.products;
-      })
-      .catch((error) => {
-        console.error("Ошибка загрузки продуктов:", error);
-      });
+const products = ref([]);
+const categories = ref([]);
+const searchQuery = ref("");
+const selectedCategory = ref("");
+const currentPage = ref(1);
+const productsPerPage = ref(8);
 
-    fetch("https://dummyjson.com/products/categories")
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Категории из API:", data);
-        this.categories = data.map((category) => ({
-          name: category.name,
-          slug: category.slug,
-        }));
-      })
-      .catch((error) => {
-        console.error("Ошибка загрузки категорий:", error);
-      });
-  },
-  methods: {
-    handleSearch(query) {
-      this.searchQuery = query;
-      this.currentPage = 1;
-    },
-    handleCategoryChange(category) {
-      this.selectedCategory = category;
-      this.currentPage = 1;
-    },
-    handlePageChange(page) {
-      this.currentPage = page;
-    },
-  },
-};
+const filteredProducts = computed(() => {
+  return products.value.filter((product) => {
+    const matchesSearch = product.title
+      .toLowerCase()
+      .includes(searchQuery.value.toLowerCase());
+    const matchesCategory =
+      !selectedCategory.value || product.category === selectedCategory.value;
+    return matchesSearch && matchesCategory;
+  });
+});
+
+const paginatedProducts = computed(() => {
+  const start = (currentPage.value - 1) * productsPerPage.value;
+  const end = start + productsPerPage.value;
+  return filteredProducts.value.slice(start, end);
+});
+
+const totalPages = computed(() => {
+  return Math.ceil(filteredProducts.value.length / productsPerPage.value);
+});
+
+function handleSearch(query) {
+  searchQuery.value = query;
+  currentPage.value = 1;
+}
+
+function handleCategoryChange(category) {
+  selectedCategory.value = category;
+  currentPage.value = 1;
+}
+
+function handlePageChange(page) {
+  currentPage.value = page;
+}
+
+onMounted(() => {
+  fetch("https://dummyjson.com/products")
+    .then((response) => response.json())
+    .then((data) => {
+      products.value = data.products;
+    })
+    .catch((error) => {
+      console.error("Ошибка загрузки продуктов:", error);
+    });
+
+  fetch("https://dummyjson.com/products/categories")
+    .then((response) => response.json())
+    .then((data) => {
+      categories.value = data.map((category) => ({
+        name: category.name,
+        slug: category.slug,
+      }));
+    })
+    .catch((error) => {
+      console.error("Ошибка загрузки категорий:", error);
+    });
+});
 </script>
 
 <style>
 body {
-  max-width: 1050px;  
+  max-width: 1050px;
   margin: 0 auto;
   padding: 0;
 }

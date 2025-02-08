@@ -9,21 +9,23 @@
     </div>
 </template>
 
-<script>
-export default {
-    name: "FilterBar",
-    props: ["categories", "onCategorySelect"],
-    data() {
-        return {
-            selectedCategory: "",
-        };
-    },
-    methods: {
-        onCategoryChange() {
-            this.onCategorySelect(this.selectedCategory);
-        },
-    },
-};
+<script setup>
+import { ref } from "vue";
+
+defineProps({
+    categories: {
+        type: Array,
+        required: true,
+    }
+});
+
+const emit = defineEmits(["categorySelect"]);
+
+const selectedCategory = ref("");
+
+function onCategoryChange() {
+    emit("categorySelect", selectedCategory.value);
+}
 </script>
 
 <style scoped>

@@ -8,11 +8,13 @@
     </div>
 </template>
 
-<script>
-export default {
-    name: "ProductList",
-    props: ["products"],
-};
+<script setup>
+defineProps({
+    products: {
+        type: Array,
+        required: true,
+    }
+});
 </script>
 
 <style scoped>
