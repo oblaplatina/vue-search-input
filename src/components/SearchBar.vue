@@ -4,21 +4,12 @@
     </div>
 </template>
 
-<script>
-export default {
-    name: "SearchBar",
-    props: ["onSearchInput"],
-    data() {
-        return {
-            searchQuery: "",
-        };
-    },
-    methods: {
-        onInput: debounce(function () {
-            this.onSearchInput(this.searchQuery);
-        }, 500),
-    },
-};
+<script setup>
+import { ref } from "vue";
+
+const emit = defineEmits(["searchInput"]);
+
+const searchQuery = ref("");
 
 function debounce(func, delay) {
     let timeout;
@@ -27,6 +18,10 @@ function debounce(func, delay) {
         timeout = setTimeout(() => func.apply(this, args), delay);
     };
 }
+
+const onInput = debounce(() => {
+    emit("searchInput", searchQuery.value);
+}, 500);
 </script>
 
 <style scoped>
