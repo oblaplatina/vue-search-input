@@ -1,6 +1,6 @@
 <template>
   <div>
-    <SearchBar :onSearchInput="handleSearch" />
+    <SearchBar @searchInput="handleSearch" />
     <FilterBar :categories="categories" :onCategorySelect="handleCategoryChange" />
     <ProductList :products="paginatedProducts" />
     <ProductPagination :currentPage="currentPage" :totalPages="totalPages" :onPageChange="handlePageChange" />
